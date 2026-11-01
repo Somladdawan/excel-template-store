@@ -41,59 +41,40 @@
    <button class="close" type="button" onclick="closeVideo()" aria-label="ปิดวิดีโอ">✕</button>
   </div>
   <p id="videoStatus" class="video-status" aria-live="polite">กำลังเตรียมวิดีโอตัวอย่าง...</p>
-  <video id="poVideo" controls playsinline preload="none" poster="assets/product-po.png">เบราว์เซอร์ของคุณไม่รองรับวิดีโอ</video>
-  <p class="video-hint">คลิปสาธิตการใช้งานจริงจากโฟลเดอร์สินค้าใบสั่งซื้อ (PO)</p>
+  <iframe id="poVideo" title="วิดีโอตัวอย่างใบสั่งซื้อ PO" loading="lazy" allow="autoplay; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" style="border:0"></iframe>
+  <p class="video-hint">คลิปตัวอย่างใบสั่งซื้อ (PO) ฉบับใหม่ <a href="https://drive.google.com/file/d/1545AF6Nvg-sM8pYeG5f0ehUKnBGaZmno/view" target="_blank" rel="noopener noreferrer" style="color:#087d58;text-decoration:underline">เปิดวิดีโอใน Google Drive</a></p>
  </div>
 </div>
 <script>
-const products=[{id:'absence',name:'บันทึกขาด ลา มาสาย',price:129,type:'hr',desc:'ไฟล์สำหรับจัดเก็บและติดตามข้อมูลการขาด ลา มาสายของพนักงาน',image:'assets/product-absence.png',demo:'https://www.tiktok.com/@nintendoldwppp/video/7700987249512533268'},{id:'tracker',name:'ติดตามโปรเจกต์',price:89,type:'project',desc:'ไฟล์ช่วยจัดการและติดตามความคืบหน้าของโปรเจกต์',image:'assets/product-project.png',demo:'https://www.tiktok.com/@nintendoldwppp/video/7699898211984543028'},{id:'po',name:'ใบสั่งซื้อ (Purchase Order / PO)',price:119,type:'po',desc:'ไฟล์เอกสารใบสั่งซื้อสำหรับบันทึกข้อมูลผู้ขาย รายการสินค้า จำนวน ราคา VAT และยอดรวม',image:'assets/product-po.png',demoParts:["assets/po-demo/part-0.bin","assets/po-demo/part-1.bin","assets/po-demo/part-2.bin","assets/po-demo/part-3.bin","assets/po-demo/part-4.bin","assets/po-demo/part-5.bin","assets/po-demo/part-6.bin","assets/po-demo/part-7.bin"]}];
+const products=[{id:'absence',name:'บันทึกขาด ลา มาสาย',price:129,type:'hr',desc:'ไฟล์สำหรับจัดเก็บและติดตามข้อมูลการขาด ลา มาสายของพนักงาน',image:'assets/product-absence.png',demo:'https://www.tiktok.com/@nintendoldwppp/video/7700987249512533268'},{id:'tracker',name:'ติดตามโปรเจกต์',price:89,type:'project',desc:'ไฟล์ช่วยจัดการและติดตามความคืบหน้าของโปรเจกต์',image:'assets/product-project.png',demo:'https://www.tiktok.com/@nintendoldwppp/video/7699898211984543028'},{id:'po',name:'ใบสั่งซื้อ (Purchase Order / PO)',price:119,type:'po',desc:'ไฟล์เอกสารใบสั่งซื้อสำหรับบันทึกข้อมูลผู้ขาย รายการสินค้า จำนวน ราคา VAT และยอดรวม',image:'assets/product-po.png',demoDriveId:"1545AF6Nvg-sM8pYeG5f0ehUKnBGaZmno"}];
 let cart={},type='all';
 try{cart=JSON.parse(localStorage.getItem('excel-store-cart')||'{}')}catch(e){cart={}}
 const money=n=>'฿'+n.toLocaleString('th-TH');
 function save(){try{localStorage.setItem('excel-store-cart',JSON.stringify(cart))}catch(e){}document.getElementById('count').textContent=Object.keys(cart).filter(k=>cart[k]).length}
 
 function demoButton(p){
- if(p.demoParts){
+ if(p.demoDriveId){
   return '<button class="btn alt" type="button" onclick="openVideoById(&quot;'+p.id+'&quot;)">▶ วิดีโอตัวอย่าง</button>';
  }
  return '<a class="btn alt" href="'+p.demo+'" target="_blank" rel="noopener noreferrer">▶ วิดีโอตัวอย่าง</a>';
 }
 function renderProducts(){const query=document.getElementById('search').value.toLowerCase();const list=products.filter(p=>(type==='all'||p.type===type)&&(p.name.toLowerCase().includes(query)||p.desc.toLowerCase().includes(query)));document.getElementById('productsList').innerHTML=list.length?list.map(p=>'<article class="product"><div class="thumb product-thumb"><img src="'+p.image+'" alt="ภาพตัวอย่างไฟล์ '+p.name+'" loading="lazy"></div><div class="product-body"><span class="tag">'+(p.type==='hr'?'HR TEMPLATE':p.type==='po'?'PO TEMPLATE':'PROJECT TEMPLATE')+'</span><h3>'+p.name+'</h3><p>'+p.desc+'</p><div class="price">'+money(p.price)+'</div><div class="product-actions">'+demoButton(p)+'<button class="btn" onclick="addToCart(\''+p.id+'\')">+ ใส่ตะกร้า</button></div></div></article>').join(''):'<p>ไม่พบสินค้าที่ค้นหา</p>'}
 
-let videoObjectUrl = null;
-let videoLoadPromise = null;
-async function openVideoById(id){
+function openVideoById(id){
  const p=products.find(product=>product.id===id);
- if(!p || !p.demoParts)return;
+ if(!p || !p.demoDriveId)return;
  const modal=document.getElementById('videoModal');
  const player=document.getElementById('poVideo');
  const status=document.getElementById('videoStatus');
  document.getElementById('videoTitle').textContent='วิดีโอตัวอย่าง: '+p.name;
+ player.src='https://drive.google.com/file/d/'+encodeURIComponent(p.demoDriveId)+'/preview';
  modal.classList.add('show');
  modal.setAttribute('aria-hidden','false');
- status.textContent='กำลังโหลดวิดีโอตัวอย่าง...';
- try{
-  if(!videoObjectUrl){
-   if(!videoLoadPromise){
-    videoLoadPromise=Promise.all(p.demoParts.map(async path=>{
-     const response=await fetch(path);
-     if(!response.ok)throw new Error('โหลดวิดีโอไม่สำเร็จ: '+path);
-     return response.arrayBuffer();
-    })).then(chunks=>URL.createObjectURL(new Blob(chunks,{type:'video/mp4'})));
-   }
-   videoObjectUrl=await videoLoadPromise;
-  }
-  player.src=videoObjectUrl;
-  player.load();
-  status.textContent='กดปุ่มเล่น ▶ เพื่อดูคลิปตัวอย่าง';
- }catch(e){
-  videoLoadPromise=null;
-  status.textContent='ไม่สามารถโหลดคลิปได้ กรุณาลองใหม่อีกครั้ง';
- }
+ status.textContent='คลิปตัวอย่างฉบับใหม่ • หากวิดีโอไม่แสดง ให้เปิดจากลิงก์ Google Drive ด้านล่าง';
 }
 function closeVideo(){
  const player=document.getElementById('poVideo');
- player.pause();
+ player.src='about:blank';
  const modal=document.getElementById('videoModal');
  modal.classList.remove('show');
  modal.setAttribute('aria-hidden','true');
