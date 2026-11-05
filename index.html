@@ -72,14 +72,16 @@ function demoButton(p){
  if(p.demoDriveId){
   return '<button class="btn alt" type="button" onclick="openVideoById(&quot;'+p.id+'&quot;)">▶ วิดีโอตัวอย่าง</button>';
  }
- return '<a class="btn alt" href="'+p.demo+'" target="_blank" rel="noopener noreferrer">▶ วิดีโอตัวอย่าง</a>';
+  if(p.demo)return '<a class="btn alt" href="'+p.demo+'" target="_blank" rel="noopener noreferrer">▶ วิดีโอตัวอย่าง</a>';
+  if(p.image)return '<a class="btn alt" href="'+p.image+'" target="_blank" rel="noopener noreferrer">ดูภาพตัวอย่าง</a>';
+  return '';
 }
 function renderProducts(){
  const query=document.getElementById('search').value.toLowerCase();
  const list=products.filter(p=>(type==='all'||p.type===type)&&(p.name.toLowerCase().includes(query)||p.desc.toLowerCase().includes(query)));
  document.getElementById('productsList').innerHTML=list.length?list.map(p=>{
   const preview=p.image?'<a href="'+p.image+'" target="_blank" rel="noopener noreferrer" title="คลิกเพื่อดูภาพตัวอย่างขนาดเต็ม"><img src="'+p.image+'" alt="ภาพตัวอย่างไฟล์ '+p.name+'" loading="lazy"></a>':'';
-  const label=p.sample?(p.type==='stock'?'STOCK MANAGEMENT • เร็ว ๆ นี้':'QUOTATION • ตัวอย่าง'):(p.type==='hr'?'HR TEMPLATE':p.type==='po'?'PO TEMPLATE':'PROJECT TEMPLATE');
+  const label=p.sample?(p.type==='stock'?'STOCK MANAGEMENT • เร็ว ๆ นี้':'QUOTATION • ตัวอย่าง'):(p.type==='hr'?'HR TEMPLATE':p.type==='po'?'PO TEMPLATE':p.type==='quotation'?'QUOTATION TEMPLATE':'PROJECT TEMPLATE');
   const price=p.sample?'<div class="price price-upcoming">'+(p.price==null?'รอประกาศราคา':money(p.price))+'</div>':'<div class="price">'+money(p.price)+'</div>';
   const actions=p.sample?'<span class="sample-pending">ยังไม่เปิดจำหน่าย • คลิกภาพเพื่อขยาย</span>':demoButton(p)+'<button class="btn" onclick="addToCart(\''+p.id+'\')">+ ใส่ตะกร้า</button>';
   return '<article class="product"><div class="thumb product-thumb'+(p.sample?' sample-thumb':'')+'">'+preview+'</div><div class="product-body"><span class="tag'+(p.sample?' tag-coming':'')+'">'+label+'</span><h3>'+p.name+'</h3><p>'+p.desc+'</p>'+price+'<div class="product-actions">'+actions+'</div></div></article>';
